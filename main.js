@@ -17,7 +17,6 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-
 let topCards = [];
 let bottomCard;
 let score = 0;
@@ -118,38 +117,33 @@ function create() {
         }
     });
 
-   // Visszaszámláló és hibaszámláló
-    timerText = this.add.text(10, 10, '07:00', { fontSize: '16px', fill: '#000' });
-    wrongScoreText = this.add.text(780, 10, '0', { fontSize: '32px', fill: '#000' }).setOrigin(1, 0);
-    avgText = this.add.text(10, 50, 'AVG: 0.00', { fontSize: '16px', fill: '#000' });
-
     // Piros 'A' gomb bal oldalon fentebb és szélesebb
-    let aButton = this.add.text(50, 450, 'A', {
+    let aButton = this.add.text(50, 400, 'A', {
         fontSize: '40px',
         backgroundColor: '#ff0000',
         color: '#ffffff',
-        padding: { x: 80, y: 30 },  // Szélesebb gomb
+        padding: { x: 50, y: 20 },  // Szélesebb gomb
         align: 'center'
     }).setInteractive();
 
     // Zöld 'L' gomb jobb oldalon fentebb és szélesebb
-    let lButton = this.add.text(650, 450, 'L', {
+    let lButton = this.add.text(650, 400, 'L', {
         fontSize: '40px',
         backgroundColor: '#00ff00',
         color: '#ffffff',
-        padding: { x: 80, y: 30 },  // Szélesebb gomb
+        padding: { x: 50, y: 20 },  // Szélesebb gomb
         align: 'center'
     }).setInteractive();
 
     // Gombokhoz rendelt funkciók
     aButton.on('pointerdown', handleKeyA, this);  // Gomb megnyomásakor az 'A' funkció fut
     lButton.on('pointerdown', handleKeyL, this);  // Gomb megnyomásakor az 'L' funkció fut
+}
 
     // Események figyelése billentyűzetről
     this.input.keyboard.on('keydown-L', handleKeyL, this);
     this.input.keyboard.on('keydown-A', handleKeyA, this);
  
-}
 
 function update() {
     if (!gamePaused && timerStarted) {
