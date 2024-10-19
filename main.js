@@ -128,7 +128,7 @@ function create() {
         fontSize: '40px',
         backgroundColor: '#ff0000',
         color: '#ffffff',
-        padding: { x: 40, y: 20 },  // Szélesebb gomb
+        padding: { x: 80, y: 30 },  // Szélesebb gomb
         align: 'center'
     }).setInteractive();
 
@@ -137,7 +137,7 @@ function create() {
         fontSize: '40px',
         backgroundColor: '#00ff00',
         color: '#ffffff',
-        padding: { x: 40, y: 20 },  // Szélesebb gomb
+        padding: { x: 80, y: 30 },  // Szélesebb gomb
         align: 'center'
     }).setInteractive();
 
