@@ -117,45 +117,70 @@ function create() {
         }
     });
 
-    // Piros 'A' gomb bal oldalon fentebb és szélesebb
-    let aButton = this.add.text(50, 400, 'A', {
-        fontSize: '40px',
-        backgroundColor: '#ff0000',
-        color: '#ffffff',
-        padding: { x: 50, y: 20 },  // Szélesebb gomb
-        align: 'center'
-    }).setInteractive();
+   // Piros 'A' gomb bal oldalon, az alja korábbi y pozícióban
+let aButton = this.add.text(10, 320, 'A', {  // A bal oldalon legszélső pozíció (x = 10)
+    fontSize: '40px',
+    backgroundColor: '#ff0000',
+    color: '#ffffff',
+    padding: { x: 50, y: 60 },  // 3x magasabb gomb
+    align: 'center'
+}).setInteractive();
 
-    // Zöld 'L' gomb jobb oldalon fentebb és szélesebb
-    let lButton = this.add.text(650, 400, 'L', {
-        fontSize: '40px',
-        backgroundColor: '#00ff00',
-        color: '#ffffff',
-        padding: { x: 50, y: 20 },  // Szélesebb gomb
-        align: 'center'
-    }).setInteractive();
+// Zöld 'L' gomb jobb oldalon, az alja korábbi y pozícióban
+let lButton = this.add.text(670, 320, 'L', {  // A jobb oldalon legszélső pozíció (x = 670)
+    fontSize: '40px',
+    backgroundColor: '#00ff00',
+    color: '#ffffff',
+    padding: { x: 50, y: 60 },  // 3x magasabb gomb
+    align: 'center'
+}).setInteractive();
+
+
+
 
     // Gombokhoz rendelt funkciók
-    aButton.on('pointerdown', handleKeyA, this);  // Gomb megnyomásakor az 'A' funkció fut
-    lButton.on('pointerdown', handleKeyL, this);  // Gomb megnyomásakor az 'L' funkció fut
-}
+aButton.on('pointerdown', function() {
+    handleAnyKey();  // Indítja az időzítőt
+    handleKeyA();  // Gomb megnyomásakor az 'A' funkció fut
+}, this);
 
-    // Események figyelése billentyűzetről
-    this.input.keyboard.on('keydown-L', handleKeyL, this);
-    this.input.keyboard.on('keydown-A', handleKeyA, this);
- 
+lButton.on('pointerdown', function() {
+    handleAnyKey();  // Indítja az időzítőt
+    handleKeyL();  // Gomb megnyomásakor az 'L' funkció fut
+}, this);
+
+}
 
 function update() {
     if (!gamePaused && timerStarted) {
-        updateTimer();
+        updateTimer();  // Frissíti az időzítőt
         totalPlayTime += 1 / 60;  // Játékidő növelése minden frame-ben (60 FPS)
         updateAvgTime();  // Átlagos idő frissítése
     }
 }
 
+function updateTimer() {
+    let minutes = Math.floor(timer / 60);
+    let seconds = Math.floor(timer % 60);  // Csak perc és másodperc jelenjen meg
+
+    // Formázás: ha a másodperc < 10, tegyünk elé egy nullát
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+
+    // Frissítjük a visszaszámláló szöveget
+    timerText.setText(`${minutes}:${seconds}`);
+
+    // Minden másodpercben csökkentjük az időt, még akkor is, ha mínuszba megy
+    timer -= 1 / 60;  // 60 FPS frissítési ciklus mellett számoljuk a másodperceket
+
+    // Amikor az idő eléri a nullát, mínuszban is folytatódik
+    if (timer < 0) {
+        timerText.setFill('#ff0000');  // Pirosra vált a szöveg, ha mínuszba megy
+    }
+}
 function handleAnyKey() {
     if (!timerStarted) {
         timerStarted = true;  // A visszaszámlálás elindul
+        console.log('Időzítő elindítva');
     }
     if (gamePaused) {
         resumeGame();  // Ha a játék szünetelt, folytatódik
@@ -216,7 +241,7 @@ function updateTimer() {
     // Frissítjük a visszaszámláló szöveget
     timerText.setText(`${minutes}:${seconds}`);
 
-       // Minden másodpercben csökkentjük az időt, még akkor is, ha mínuszba megy
+    // Minden másodpercben csökkentjük az időt, még akkor is, ha mínuszba megy
     timer -= 1 / 60;  // 60 FPS frissítési ciklus mellett számoljuk a másodperceket
 
     // Amikor az idő eléri a nullát, mínuszban is folytatódik
