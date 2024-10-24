@@ -56,6 +56,10 @@ function preload() {
     });
 }
 
+let clickAndKeyPressCount = 0;  // Új változó a kattintások és billentyűlenyomások számolására
+let clickAndKeyPressText;  // Szöveg a számláló megjelenítéséhez
+
+
 function create() {
     console.log("Jelenet létrehozása elkezdődött...");
     
@@ -87,8 +91,11 @@ function create() {
     // Átlagos idő szöveg hozzáadása a képernyő bal oldalán, a visszaszámláló alatt
     avgText = this.add.text(10, 50, 'AVG: 0.00', { fontSize: '16px', fill: '#000' });
 
+    // Billentyűlenyomások és kattintások számlálója az AVG alatt
+    clickAndKeyPressText = this.add.text(10, 70, 'PRSD: 0', { fontSize: '16px', fill: '#000' });
+
     // RESET felirat középen (felére csökkentve)
-    resetButton = this.add.text(400, 10, 'RESET', { fontSize: '16px', fill: '#000' });
+    resetButton = this.add.text(400, 10, 'RESET', { fontSize: '24px', fill: '#000' });
     resetButton.setOrigin(0.5, 0);  // Középre igazítva
     resetButton.setInteractive();  // Klikkelhetővé tétele
     resetButton.on('pointerdown', resetGame);  // Reset funkció
@@ -151,15 +158,18 @@ lButton.on('pointerdown', function() {
 
 }
 
-function update() {
+function update(time, delta) {
     if (!gamePaused && timerStarted) {
-        updateTimer();  // Frissíti az időzítőt
-        totalPlayTime += 1 / 60;  // Játékidő növelése minden frame-ben (60 FPS)
+        updateTimer(delta);  // Frissíti az időzítőt a delta idő figyelembevételével
+        totalPlayTime += delta / 1000;  // Játékidő növelése (másodpercben)
         updateAvgTime();  // Átlagos idő frissítése
     }
 }
 
-function updateTimer() {
+function updateTimer(delta) {
+    let secondsElapsed = delta / 1000;  // A delta milliszekundumban van, ezért másodpercre alakítjuk
+    timer -= secondsElapsed;  // Csökkentjük az időt a delta alapján, normalizálva másodpercekre
+
     let minutes = Math.floor(timer / 60);
     let seconds = Math.floor(timer % 60);  // Csak perc és másodperc jelenjen meg
 
@@ -169,14 +179,12 @@ function updateTimer() {
     // Frissítjük a visszaszámláló szöveget
     timerText.setText(`${minutes}:${seconds}`);
 
-    // Minden másodpercben csökkentjük az időt, még akkor is, ha mínuszba megy
-    timer -= 1 / 60;  // 60 FPS frissítési ciklus mellett számoljuk a másodperceket
-
     // Amikor az idő eléri a nullát, mínuszban is folytatódik
     if (timer < 0) {
         timerText.setFill('#ff0000');  // Pirosra vált a szöveg, ha mínuszba megy
     }
 }
+
 function handleAnyKey() {
     if (!timerStarted) {
         timerStarted = true;  // A visszaszámlálás elindul
@@ -190,6 +198,8 @@ function handleAnyKey() {
 function handleKeyL() {
     keyPresses++;
     keyPressTimestamps.push(totalPlayTime);  // Menti az időbélyeget
+    clickAndKeyPressCount++;  // Növeljük a kattintások és billentyűlenyomások számát
+    updateClickAndKeyPressCount();  // Frissítjük a szöveget
     if (isCardMatching()) {
         score++;
         console.log('Helyes! Pontok: ' + score);
@@ -204,6 +214,8 @@ function handleKeyL() {
 function handleKeyA() {
     keyPresses++;
     keyPressTimestamps.push(totalPlayTime);  // Menti az időbélyeget
+    clickAndKeyPressCount++;  // Növeljük a kattintások és billentyűlenyomások számát
+    updateClickAndKeyPressCount();  // Frissítjük a szöveget
     if (!isCardMatching()) {
         score++;
         console.log('Helyes! Pontok: ' + score);
@@ -214,6 +226,25 @@ function handleKeyA() {
     }
     newBottomCard();
 }
+
+function updateClickAndKeyPressCount() {
+    clickAndKeyPressText.setText(`PRSD: ${clickAndKeyPressCount}`);  // Frissítjük a számláló szöveget
+}
+
+// A gombokhoz rendelt kattintásesemények is növelik a számlálót
+aButton.on('pointerdown', function() {
+    handleAnyKey();
+    handleKeyA();
+    clickAndKeyPressCount++;  // Növeljük a kattintások számát
+    updateClickAndKeyPressCount();  // Frissítjük a szöveget
+}, this);
+
+lButton.on('pointerdown', function() {
+    handleAnyKey();
+    handleKeyL();
+    clickAndKeyPressCount++;  // Növeljük a kattintások számát
+    updateClickAndKeyPressCount();  // Frissítjük a szöveget
+}, this);
 
 function handleSpaceKey() {
     gamePaused = !gamePaused;  // A játék szünetel vagy folytatódik
@@ -260,6 +291,10 @@ function resetGame() {
     timer = 7 * 60;  // Újraindítja a visszaszámlálót
     timerStarted = false;
     gamePaused = false;
+    
+    // Kattintások és billentyűlenyomások számlálójának visszaállítása
+    clickAndKeyPressCount = 0;
+    updateClickAndKeyPressCount();  // Frissíti a PRSD szöveget
 
     // Szövegek visszaállítása
     timerText.setText('07:00');
